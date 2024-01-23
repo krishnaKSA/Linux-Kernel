@@ -118,6 +118,67 @@ These queues are generally linked lists.
 
 2. The child process has a new program loaded into it
 
-In fork(), child process ****
+In fork(), child process consists of a copy of the address space of a original process.
+Child proces inherits privilages and scheduling attributes , and some resources as open files.
 
+![3_08_ProcessTree](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/e35f6734-a8ff-46a6-aade-a73074642c61)
 
+![3_10_ProcessCreation](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/a53f585f-2166-4c6c-a802-aa83ff90a2a3)
+
+```
+#include <sys/types.h>
+#include <stdio.h>
+#include <unistd.h>
+int main()
+{
+pid t pid;
+/* fork a child process */
+pid = fork();
+if (pid < 0) { /* error occurred */
+fprintf(stderr, "Fork Failed");
+return 1;
+}
+else if (pid == 0) { /* child process */
+execlp("/bin/ls","ls",NULL);
+}
+else { /* parent process */
+/* parent will wait for the child to complete */
+wait(NULL);
+printf("Child Complete");
+}
+return 0;
+}
+```
+
+# PROCESS TERMINATION
+
+ * Process may request own termination call by invoking **exit** function whicn return int value. If   
+   success m then zero returns, on unsuccessful cases non zero value returned. This int return value will 
+   be passed to parent function if it is in **wait()** state.
+
+           ```
+            child code:
+            int exitCode;
+            exit( exitCode );  // return exitCode; has the same effect when executed from main( )
+
+            parent code:
+            pid_t pid;
+            int status
+            pid = wait( &status ); 
+            // pid indicates which child exited. exitCode in low-order bits of status
+            // macros can test the high-order bits of status for why it stopped
+          ```
+
+ * Process can also be terminated on the below reasons,****
+
+   ->The inability of the system to deliver necessary system resources.
+
+   -> In response to a KILL command, or other un handled process interrupt.
+
+   -> A parent may kill its children if the task assigned to them is no longer needed.
+
+   ->If the parent exits, the system may or may not allow the child to continue without a parent. ( On UNIX 
+     systems, orphaned processes are generally inherited by init, which then proceeds to kill them. The 
+     UNIX nohup command allows a child to continue executing after its parent has exited. )
+
+* When a process terminates, all of its system resources are freed up, open files flushed and closed, etc. The process termination status and execution times are returned to the parent if the parent is waiting for the child to terminate, or eventually returned to init if the process becomes an orphan. ( Processes which are trying to terminate but which cannot because their parent is not waiting for them are termed zombies. These are eventually inherited by init as orphans and killed off. Note that modern UNIX shells do not produce as many orphans and zombies as older systems used to. )

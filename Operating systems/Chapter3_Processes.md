@@ -11,3 +11,27 @@ A program is a passive entity, such as a file containing a list of instructions 
 **The structure of the process is below.**
  ![image](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/517c5326-a11f-45ae-b330-bd91aa487685)
 
+![image(1620)](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/230cf423-078d-4dcb-97a7-e8004eabe82d)
+
+**Process state:**
+As a process executes, it changes state. The state of a process is defined in part by the current activity of that process. 
+A process may be in one of the following states:
+• New. The process is being created.
+• Running. Instructions are being executed.
+• Waiting. The process is waiting for some event to occur (such as an I/O
+completion or reception of a signal).
+• Ready. The process is waiting to be assigned to a processor.
+• Terminated. The process has finished execution
+
+**Process Control Block**
+Each process is represented in the operating system by a process control block (PCB)—also called a task control block.
+
+![Process-state-transition-diagram](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/75e44a17-5816-4e4b-83de-16964a2f346a)
+
+• **Process state.** The state may be new, ready, running, waiting, halted, and so on.
+• **Program counter.** The counter indicates the address of the next instruction to be executed for this process.
+• **CPU registers.** The registers vary in number and type, depending on the computer architecture. They include accumulators, index registers, stack pointers, and general-purpose registers, plus any condition-code  information. Along with the program counter, this state information must be saved when an interrupt occurs, to allow the process to be continued
+correctly afterward.
+• **CPU-scheduling information.** This information includes a process priority, pointers to scheduling queues, and any other scheduling parameters.
+• **Memory-management information.** This information may include such items as the value of the base and limit registers and the page tables, or the segment tables, depending on the memory system used by the operating system.
+

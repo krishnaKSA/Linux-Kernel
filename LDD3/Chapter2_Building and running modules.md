@@ -25,13 +25,15 @@ After insmod has loaded the program, the module can access the kernel's public s
 
 **Difference Between a Kernel Module and an Application**
 
--> While not all applications are event-driven, every kernal module is
--> An application can be lazy in how it is destroyed with releasing resources, while the exit of a module must carefully undo everything from the init() function or the pieces will remain until the system is rebooted
--> Faults are handled safely in applications, but they can easily cause a whole system crash in a kernel module
--> A module runs in kernel space, where an application runs in user space
-Unloading is nice - it allows you to develop without rebooting the system every time you make changes to it. The only functions a kernel module can use are the ones exported by the kernel. There are no libraries to link to.
+-> While not all applications are event-driven, every kernal module is.
 
-Due to the lack of libraries, the only includes should come from the kernel source tree, and usual c header files should never be used.
+-> An application can be lazy in how it is destroyed with releasing resources, while the exit of a module must carefully undo everything from the init() function or the pieces will remain until the system is rebooted.
+
+-> Faults are handled safely in applications, but they can easily cause a whole system crash in a kernel module.
+
+-> A module runs in kernel space, where an application runs in user space.
+
+Unloading is nice - it allows you to develop without rebooting the system every time you make changes to it. The only functions a kernel module can use are the ones exported by the kernel. There are no libraries to link to.
 
 **Kernal Space versus User Space
 Differences:**

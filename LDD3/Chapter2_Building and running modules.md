@@ -287,6 +287,7 @@ int __init my_init(void)
 **Module-Loading Races:**
 
 -> another part of the kernel make use of the facility immediately after the registration has completed. Ensure all the internel registration is complete, before you register any facility of your code. 
+
 -> if the initialization function fails, consider what happens if some part of the kernel was already suing some facility of your module has registered already.  If this happens, consider not failing your module if something useful has already come out of it. If it must fail, keep this in consideration for how to handle that failure.
 
 **Module Parameters:**

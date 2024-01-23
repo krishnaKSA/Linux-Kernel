@@ -279,3 +279,58 @@ out = ( out + 1 ) % BUFFER_SIZE;
 
 }
 ```
+
+# MESSAGE QUEUES
+
+If two process need to share data through message queue, first it need to create a **communication link** (logical connection). It can be done by below ways.
+ **• Direct or indirect communication**
+   
+ **• Synchronous or asynchronous communication**
+ 
+ **• Automatic or explicit bufferin**
+
+ In **Direct commuincation** explicit names should be given for sender and receiver.
+ 
+ • send(P, message)—Send a message to process P.
+ 
+ • receive(Q, message)—Receive a message from process Q.
+
+ A communication link in this scheme has the following properties:
+ 
+ • A link is established automatically between every pair of processes that want to communicate. The processes need to know only each other’s identity to communicate.
+
+• A link is associated with exactly two processes.
+
+• Between each pair of processes, there exists exactly one link.
+
+In Asymmery ,
+
+• send(P, message)—Send a message to process P.
+
+• receive(id, message)—Receive a message from any process. The
+variable id is set to the name of the process with which communication
+has taken place.
+
+ In **indirect communication**, messages are sent via **mailboxes, and ports**.
+
+ Two processes communicate via shared mailbox.
+
+ • send(A, message)—Send a message to mailbox A.
+ 
+ • receive(A, message)—Receive a message from mailbox A.
+
+In this scheme, a communication link has the following properties:
+
+• A link is established between a pair of processes only if both members of the pair have a shared mailbox.
+
+• A link may be associated with more than two processes.
+
+• Between each pair of communicating processes, a number of different links may exist, with each link corresponding to one mailbox.
+
+Now suppose that processes P1, P2, and P3 all share mailbox A. Process P1 sends a message to A, while both P2 and P3 execute a receive() from A. Which process will receive the message sent by P1? The answer depends on which of the following methods we choose:
+
+• Allow a link to be associated with two processes at most.
+
+• Allow at most one process at a time to execute a receive() operation.
+
+• Allow the system to select arbitrarily which process will receive the message (that is, either P2 or P3, but not both, will receive the message). The system may define an algorithm for selecting which process will receive the message (for example, round robin, where processes take turns receiving messages). The system may identify the receiver to the sender.

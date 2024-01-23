@@ -204,4 +204,78 @@ There are two ways, **1. Shared memory 2. Message passing**
 In shared memory, **region of memory** is shared by cooperating processes. Its difficult to implement, and 
 faster method than message queues.
 
-In Message queues, data is exchanged between the processes through messages, it is good option for smaller data, and easy to implement.
+In **Message queues**, data is exchanged between the processes through messages, it is good option for smaller data, and easy to implement. Its implemented using system calls so time consuming comparing to shared memory. But it works well on multiprocessing cores.
+
+![3_12_CommunicationsModels](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/0792b30e-033c-4967-ac03-2f75ee390b32)
+
+
+![3_ChromeBrowserArchitecture](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/4163bcb9-e7be-40b4-b671-d7dd22c3d736)
+
+# Shared-Memory Systems
+
+* In general the memory to be shared in a shared-memory system is initially within the address space of a particular process, which needs to make system calls in order to make that memory publicly available to one or more other processes.
+
+* Other processes which wish to use the shared memory must then make their own system calls to attach the shared memory area onto their address space.
+
+* Generally a few messages must be passed back and forth between the cooperating processes first in order to set up and coordinate the shared memory access.
+
+# Producer-Consumer Example Using Shared Memory
+
+This is a classic example, in which one process is producing data and another process is consuming the data. ( In this example in the order in which it is produced, although that could vary. )
+
+The data is passed via an intermediary buffer, which may be either unbounded or bounded. With a bounded buffer the producer may have to wait until there is space available in the buffer, but with an unbounded buffer the producer will never need to wait. The consumer may need to wait in either case until there is data available.
+
+This example uses shared memory and a circular queue. Note in the code below that only the producer changes "in", and only the consumer changes "out", and that they can never be accessing the same array location at the same time.
+
+First the following data is set up in the shared memory area:
+```
+#define BUFFER_SIZE 10
+
+typedef struct {
+     . . .
+} item;
+
+item buffer[ BUFFER_SIZE ];
+int in = 0;
+int out = 0;
+```
+
+Then the producer process. Note that the buffer is full when "in" is one less than "out" in a circular sense:
+```
+item nextProduced;
+while( true ) {
+
+/* Produce an item and store it in nextProduced */
+nextProduced = makeNewItem( . . . );
+
+/* Wait for space to become available */
+while( ( ( in + 1 ) % BUFFER_SIZE ) == out )
+      ; /* Do nothing */
+
+/* And then store the item and repeat the loop. */
+buffer[ in ] = nextProduced;
+in = ( in + 1 ) % BUFFER_SIZE;
+
+}
+```
+
+Then the consumer process. Note that the buffer is empty when "in" is equal to "out":
+
+```
+item nextConsumed;
+
+while( true ) {
+
+/* Wait for an item to become available */
+while( in == out )
+      ; /* Do nothing */
+
+/* Get the next available item */
+nextConsumed = buffer[ out ];
+out = ( out + 1 ) % BUFFER_SIZE;
+
+/* Consume the item in nextConsumed
+     ( Do something with it ) */
+
+}
+```

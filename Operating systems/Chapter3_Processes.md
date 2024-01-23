@@ -29,9 +29,21 @@ Each process is represented in the operating system by a process control block (
 ![Process-state-transition-diagram](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/75e44a17-5816-4e4b-83de-16964a2f346a)
 
 • **Process state.** The state may be new, ready, running, waiting, halted, and so on.
+
 • **Program counter.** The counter indicates the address of the next instruction to be executed for this process.
+
 • **CPU registers.** The registers vary in number and type, depending on the computer architecture. They include accumulators, index registers, stack pointers, and general-purpose registers, plus any condition-code  information. Along with the program counter, this state information must be saved when an interrupt occurs, to allow the process to be continued
 correctly afterward.
+
 • **CPU-scheduling information.** This information includes a process priority, pointers to scheduling queues, and any other scheduling parameters.
+
 • **Memory-management information.** This information may include such items as the value of the base and limit registers and the page tables, or the segment tables, depending on the memory system used by the operating system.
+
+![image](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/0d1359b7-8fee-4e8a-9427-1cac0cec4cc1)
+
+
+![R](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/b98a982a-d4e6-425e-9afa-01be5af8f042)
+
+
+
 

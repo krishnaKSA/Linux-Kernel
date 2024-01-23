@@ -23,6 +23,23 @@ Module_exit-> this function invoked when module is removed.
 Printk -> similar to printf , but kernel needs its own printf function because it runs by itself, without help of c library. 
 After insmod has loaded the program, the module can access the kernel's public symbols. KERN_ALERT is used to make the message show up with high priority (otherwise it might not show up anywhere).
 
+**Difference Between a Kernel Module and an Application**
+
+-> While not all applications are event-driven, every kernal module is
+-> An application can be lazy in how it is destroyed with releasing resources, while the exit of a module must carefully undo everything from the init() function or the pieces will remain until the system is rebooted
+-> Faults are handled safely in applications, but they can easily cause a whole system crash in a kernel module
+-> A module runs in kernel space, where an application runs in user space
+Unloading is nice - it allows you to develop without rebooting the system every time you make changes to it. The only functions a kernel module can use are the ones exported by the kernel. There are no libraries to link to.
+
+Due to the lack of libraries, the only includes should come from the kernel source tree, and usual c header files should never be used.
+
+**Kernal Space versus User Space
+Differences:**
+
+Privilege Level - User space is low, while kernal space has high permission level
+Each mode has its own memory mapping and address space
+User space will go into kernel space for system calls and interrupts
+
 **Concurrency in Kernel:**
 -> Linux system run multiple processes, more than one of which can be trying to user your driver at the same time. Most devices are capable of interrupting the processors.
 ->Interrupt handler runs asynchronously and can be invoked at the same time when your deriver is trying to do somethign else.

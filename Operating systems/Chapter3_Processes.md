@@ -71,3 +71,12 @@ These queues are generally linked lists.
 ![R](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/d0e2c291-ccb1-4705-b5a1-d0d76a38e6e9)
 
 # SCHEDULERS
+* A **long-term scheduler** is typical of a batch system or a very heavily loaded system. It runs infrequently, ( such as when one process ends selecting one more to be loaded in from disk in its place ), and can afford to take the time to implement intelligent and advanced scheduling algorithms.
+
+* The **short-term scheduler, or CPU Scheduler**, runs very frequently, on the order of 100 milliseconds, and must very quickly swap one process out of the CPU and swap in another one.
+
+* Some systems also employ a** medium-term scheduler**. When system loads get high, this scheduler will swap one or more processes out of the ready queue system for a few seconds, in order to allow smaller faster jobs to finish up quickly and clear the system. 
+
+* An efficient scheduling system will select a good **process mix of CPU-bound processes and I/O bound processes.**
+  
+![3_07_QueuingDiagram2](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/3e6f588b-00b6-4bff-928f-737fb7cf4d74)

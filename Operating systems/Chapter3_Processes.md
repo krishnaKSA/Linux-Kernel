@@ -182,3 +182,18 @@ return 0;
      UNIX nohup command allows a child to continue executing after its parent has exited. )
 
 * When a process terminates, all of its system resources are freed up, open files flushed and closed, etc. The process termination status and execution times are returned to the parent if the parent is waiting for the child to terminate, or eventually returned to init if the process becomes an orphan. ( Processes which are trying to terminate but which cannot because their parent is not waiting for them are termed zombies. These are eventually inherited by init as orphans and killed off. Note that modern UNIX shells do not produce as many orphans and zombies as older systems used to. )
+
+
+# INTERPROCESS COMMUNICATION
+
+Independent process which is not sharing any data or need any info from otjer processes. Cooperating process which can affect or is affected by other processes executing in the system.
+
+Why we need IPC, 
+
+* **Information sharing:** More than one process is interested in same piece of information (ex shared file).
+
+* **Computation speedup:** If we want some task to run faster, we can divide into subtasks and run concurrently. But its supported only in multiprocessing cores.
+
+* **Modualarity:** Dividing systems= functions into separate processes or threads.
+
+* **Convenience:** Single user can work on many tasks at a time. For example, editing, listening music, compiling in parallel.

@@ -15,7 +15,7 @@ A program is a passive entity, such as a file containing a list of instructions 
 
 ![image(1620)](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/230cf423-078d-4dcb-97a7-e8004eabe82d)
 
-**Process state:**
+# **Process state:**
 As a process executes, it changes state. The state of a process is defined in part by the current activity of that process. 
 A process may be in one of the following states:
 • New. The process is being created.
@@ -25,7 +25,7 @@ completion or reception of a signal).
 • Ready. The process is waiting to be assigned to a processor.
 • Terminated. The process has finished execution
 
-**Process Control Block**
+# **Process Control Block**
 Each process is represented in the operating system by a process control block (PCB)—also called a task control block.
 
 ![Process-state-transition-diagram](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/75e44a17-5816-4e4b-83de-16964a2f346a)
@@ -41,15 +41,15 @@ correctly afterward.
 
 • **Memory-management information.** This information may include such items as the value of the base and limit registers and the page tables, or the segment tables, depending on the memory system used by the operating system.
 
-**PCB Control block**
+# **PCB Control block**
 
 ![image](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/0d1359b7-8fee-4e8a-9427-1cac0cec4cc1)
 
-**CPU switch from one process to another**
+# **CPU switch from one process to another**
 
 ![R](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/b98a982a-d4e6-425e-9afa-01be5af8f042)
 
-**Process representation in linux**
+# **Process representation in linux**
 
 ![3_05_LinuxProcesses](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/9814fbb2-e361-435e-95a1-c63225e6da1a)
 

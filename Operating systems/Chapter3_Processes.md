@@ -80,3 +80,44 @@ These queues are generally linked lists.
 * An efficient scheduling system will select a good **process mix of CPU-bound processes and I/O bound processes.**
   
 ![3_07_QueuingDiagram2](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/3e6f588b-00b6-4bff-928f-737fb7cf4d74)
+
+# CONTEXT SWITCHING
+
+*Whenever an interrupt arrives, the CPU must do a state-save of the currently running process, then switch into kernel mode to handle the interrupt, and then do a state-restore of the interrupted process.
+
+*Similarly, a context switch occurs when the time slice for one process has expired and a new process is to be loaded from the ready queue. This will be instigated by a timer interrupt, which will then cause the current process's state to be saved and the new process's state to be restored.
+
+*Saving and restoring states involves saving and restoring all of the registers and program counter(s), as well as the process control blocks described above.
+
+*Context switching happens VERY VERY frequently, and the overhead of doing the switching is just lost CPU time, so context switches ( state saves & restores ) need to be as fast as possible. Some hardware has special provisions for speeding this up, such as a single machine instruction for saving or restoring all registers at once.
+
+*Some Sun hardware actually has multiple sets of registers, so the context switching can be speeded up by merely switching which set of registers are currently in use. Obviously there is a limit as to how many processes can be switched between in this manner, making it attractive to implement the medium-term scheduler to swap some processes out.
+
+![3_MultitaskingMobileSystems](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/3a4920dc-97b8-418c-a711-0e286a74b0ba)
+
+# PROCESS CREATION
+
+* Process may create other process by invoking **fork** or **spawn**.
+  
+* PPID - Parent process ID.
+
+* The first thing it does at system startup time is to launch **init** , which gives process ID 1. Init launches all system deamons , user login , and becomes ultimate parent for all the processes.
+
+* child process will need certain resources like CPU time, memory files, IO device. A child process may get this directly from OS or parent process does parition its resources among its childrens or it shares some resources.
+
+* In addition to supplying physical and logical resources, sometimes it gives initialization data(input).
+  For example, the job of the process is to display the content of the file like image.jpg. When the child process is created , it gives name of the image files to be displayed and it gives the outout device as well.
+
+**When a process creates a new process, two possibilities for execution exist:**
+1. The parent continues to execute concurrently with its children.
+
+2. The parent waits until some or all of its children have terminated
+
+**There are also two address-space possibilities for the new process:**
+1. The child process is a duplicate of the parent process (it has the same program and data as the parent).
+
+2. The child process has a new program loaded into it
+
+In fork(), child process ****
+
+

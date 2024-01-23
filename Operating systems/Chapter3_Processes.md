@@ -53,4 +53,9 @@ correctly afterward.
 
 ![3_05_LinuxProcesses](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/9814fbb2-e361-435e-95a1-c63225e6da1a)
 
+# PROCESS SCHEDULING
+
+The objective of the multiprogramming is to have some process running at all times, to maximize the CPU uitlization.  The objective of time sharing is to switch the CPU among processes so frequently that users can interact with each program white it is running. To meet , the **Program scheduler** selects an available process for program execution on the CPU.
+
+![R](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/3db6d34f-54e4-4d83-9554-a7e80c10bc27)
 

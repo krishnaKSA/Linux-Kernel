@@ -21,7 +21,7 @@ module_init -> this function invoked when module is loaded into kernel.
 Module_exit-> this function invoked when module is removed.
 
 Printk -> similar to printf , but kernel needs its own printf function because it runs by itself, without help of c library. 
-d, is linked only to the kernel, and the only functions it can call are the ones exported by the kernel; there are no libraries to link to. The printk function used in hello.c earlier, for example, is the version of printf defined within the kernel and exported to modules. It behaves similarly to the original function, with a few minor differences, the main one being lack of floating-point support. Figure 2-1 shows how function calls and function pointers are used in a module.
+After insmod has loaded the program, the module can access the kernel's public symbols. KERN_ALERT is used to make the message show up with high priority (otherwise it might not show up anywhere).
 
 **Concurrency in Kernel:**
 -> Linux system run multiple processes, more than one of which can be trying to user your driver at the same time. Most devices are capable of interrupting the processors.

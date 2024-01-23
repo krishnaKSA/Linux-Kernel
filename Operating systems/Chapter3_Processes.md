@@ -197,3 +197,11 @@ Why we need IPC,
 * **Modualarity:** Dividing systems= functions into separate processes or threads.
 
 * **Convenience:** Single user can work on many tasks at a time. For example, editing, listening music, compiling in parallel.
+
+IPC mechanism is provided to the coperative processes to exchange data and information between them.
+There are two ways, **1. Shared memory 2. Message passing**
+
+In shared memory, **region of memory** is shared by cooperating processes. Its difficult to implement, and 
+faster method than message queues.
+
+In Message queues, data is exchanged between the processes through messages, it is good option for smaller data, and easy to implement.

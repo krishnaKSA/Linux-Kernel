@@ -100,4 +100,4 @@ LINUX_VERSION_CODE -> Binary representation of the kernel version. For example, 
 
 KERNEL_VERSION (major,minor,release)-> This is the macro used to build an integer version code from the individual numbers that build up a version number. For example, KERNEL_VERSION(2,6,10) expands to 132618. This macro is very useful when you need to compare the current version and a known checkpoint.
 
-
+**Kernel sysbol table:**

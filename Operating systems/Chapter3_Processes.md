@@ -9,7 +9,9 @@ A program is a passive entity, such as a file containing a list of instructions 
 (often called an executable file). In contrast, a process is an active entity, with a program counter specifying the next instruction to execute and a set of associated resources. A program becomes a process when an executable file is loaded into memory.
 
 **The structure of the process is below.**
+ 
  ![image](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/517c5326-a11f-45ae-b330-bd91aa487685)
+
 
 ![image(1620)](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/230cf423-078d-4dcb-97a7-e8004eabe82d)
 
@@ -39,11 +41,16 @@ correctly afterward.
 
 • **Memory-management information.** This information may include such items as the value of the base and limit registers and the page tables, or the segment tables, depending on the memory system used by the operating system.
 
+**PCB Control block**
+
 ![image](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/0d1359b7-8fee-4e8a-9427-1cac0cec4cc1)
 
+**CPU switch from one process to another**
 
 ![R](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/b98a982a-d4e6-425e-9afa-01be5af8f042)
 
+**Process representation in linux**
 
+![3_05_LinuxProcesses](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/9814fbb2-e361-435e-95a1-c63225e6da1a)
 
 

@@ -44,9 +44,13 @@ User space will go into kernel space for system calls and interrupts
 
 **Concurrency in Kernel:**
 -> Linux system run multiple processes, more than one of which can be trying to user your driver at the same time. Most devices are capable of interrupting the processors.
+
 ->Interrupt handler runs asynchronously and can be invoked at the same time when your deriver is trying to do somethign else.
+
 -> Linux can run on SMP systems, your driver could be executing concurrently on more than one CPU.
+
 -> Linux kernel code must be capable of running in different context at the same time. 
+
 ->Code must take care to access shared data in ways that prevent corruption of the data.
 
 **Current process :**

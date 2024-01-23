@@ -59,11 +59,15 @@ The objective of the multiprogramming is to have some process running at all tim
 
 ![R](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/3db6d34f-54e4-4d83-9554-a7e80c10bc27)
 
-# scheduling queues
+# SCHEDULING QUEUES
 
 **Job queue** ->  contains all the processes in the system.
+
 **Ready queue**  -> contains all the processes which is in ready or waiting state.
 These queues are generally linked lists.
 
 **Device queue** -> Each device contains its own device queue. It contains the list of processes which are waiting for the particular I/O device.
 
+![R](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/d0e2c291-ccb1-4705-b5a1-d0d76a38e6e9)
+
+# SCHEDULERS

@@ -30,5 +30,20 @@ VFS gets device number , and compare it with its driver registration list. That 
 VFS will select the correct device driver from its list based on the number, and forwards the user request to the driver.
 Device driver uses minor number to distingush on which device file read and write opeartions are issued.
 
+* The Device number is the combinarion of the major and mior number.
+
+* In linux kernel, dev_t is the typedef of u32, and its used to represent the device number
+
+* Out of 32 bits, 12 bits for major number , 20 bits for minor number.
+
+* We can extract major and minor number from dev_t by using these macros. (linux/kdev_t.h)
+
+      dev_t device_number;
+      int major_number = MAJOR(device_number);
+      int minor_number = MINOR(device_number);
+
+* If we have major and minor number , we can use the below macro to get dev_t value.
+      MKDEV(major_number, minor_number);
+
 
 

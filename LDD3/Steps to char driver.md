@@ -12,8 +12,16 @@ Step Module_init: connection establish between device file access and driver.
                class_create();
                device_create();
 
-              In Linux , we can create device files dynamically by kernel module. **udevd** can populate /dev drirectory with device files dynamcially.
 
+In Linux , we can create device files dynamically by kernel module. **udevd** can populate /dev drirectory with device files dynamcially.
+
+Class_create: create direcory in the sys/class/<classname>
+
+device_create:This function creates sub directory under /sys/class/<class_name>/<devicename>
+This function also populates sysfs entry with dev file which contains major , minor number.
+/sys/class/<classname>/<devicename>/dev
+
+As part of this device_create call , uevents wil be generated from the kernel. When it resaches to user space, **udevd** scans for that usevents, udevd reads this dev file and understands device filename, what is major and minor number. Then it creates device files and dev directory.
               
         * Make a char device registation with the VFS(CDEV_ADD)
 

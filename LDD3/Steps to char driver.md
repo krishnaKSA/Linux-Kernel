@@ -86,5 +86,28 @@ if (!p)
 
         * Unregister device driver cdev_del();
 
-       
+**File operations::**
+
+![Figure-1-28](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/f27b4dd5-c814-4164-9567-72699d2caf93)
+
+![Figure-2-29](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/6cabf9c0-4f72-4cb4-b59e-7f0533dc6fda)
+
+![Figure-3-26-768x231](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/f59752a3-d2ac-485e-ab0c-e775bcedd68d)
+
+![Figure-4-22-768x376](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/c1e3dbf5-cb9b-4e35-bd54-566d7c784ac2)
+
+![Figure-4-22-768x376](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/c2d177f2-d787-4888-a39f-ef97467eba7a)
+
+![Figure-5-21-768x326](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/6058ceb6-ff29-40cb-b0ed-60dabe5055e4)
+
+![Figure-6-17](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/28a217d2-d521-49e2-80bd-18d22aadd952)
+
+![Figure-7-14](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/1a698f4a-2057-4957-b78e-d34200ac6401)
+
+
+![Figure-8-11](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/46138019-10b8-45bc-acc3-f200186a79ac)
+
+ ![Figure-9-9](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/ddbfa7b6-0879-4ec7-9616-a2b861919859)
+
+
 

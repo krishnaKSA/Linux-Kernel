@@ -7,6 +7,7 @@ int ioctl(int fd, unsigned long cmd, ...);
 ```
 
 Kernel space ioctl prototype
+
 ```
 int (*ioctl) (struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg);
 ```
@@ -25,6 +26,8 @@ Approved way to define ioctl command numbers defined in four bit fields.
 	 ((nr)   << _IOC_NRSHIFT) | \
 	 ((size) << _IOC_SIZESHIFT))
 ```
+
+```
 Type:   The magic number. Just choose a new number not in ioctl-number.txt and use it throughout the driver. This field is 8 bits wide.
 
 Number: The sequential number. It is 8 bits wide.
@@ -37,6 +40,7 @@ _IOC_READ|_IOC_WRITE (both read and write)
 This transfer is seen from the application's point of view (read means read from the device)
 
 Size :The size of user data involved. The width of this field is architechure dependent, but usually 13 or 14 bits. You can find it with the macro _IOC_SIZEBITS. This field is not mandatory, and the kernel doesn't actually check for it, but it is good practice for debugging.
+```
 
 ```
 If you are adding new ioctl's to the kernel, you should use the _IO
@@ -65,7 +69,7 @@ For example, 'k' is the magic number.
 #define CHDRIVER_MAX_NR 3
 
 Here, k is a magaic number. Used throughout. 1, 2 are numbers in sequential order. int is the data type.
-
+```
 
 # IOCTL argument
 
@@ -226,3 +230,78 @@ The behavior of read and write is different if O_NONBLOCK is specified. The call
 O_NONBLOCK is important for the open method if you have a long initialization process. It can return -EAGAIN after starting the init process to make sure everything is setup properly.
 
 Overall - only the read, write, and open file operations are affected by the nonblocking flag.
+
+```
+A Blocking I/O Example
+We will look at the scullpipe driver as an implementation of a blocking I/O.
+
+A process blocked in a read call is awakened when data arrives (usually handled as an interrupt). Scullpipe does not use an interrupt handler, however. The device uses two queues and a buffer. The buffer size in configurable in the usual ways.
+
+struct scull_pipe {
+   wait_queue_head_t inq, outq; /* read and write queues */
+   char *buffer, *end; /* begin of buf, end of buf */
+   int buffersize; /* used in pointer arithmetic */
+   char *rp, *wp; /* where to read, where to write */
+   int nreaders, nwriters; /* number of openings for r/w */
+   struct fasync_struct *async_queue; /* asynchronous readers */
+   struct semaphore sem; /* mutual exclusion semaphore */
+   struct cdev cdev; /* Char device structure */
+};
+read manages both blocking and nonblocking as the following:
+
+static ssize_t scull_p_read (struct file *filp, char __user *buf, size_t count,
+    loff_t *f_pos)
+{
+    struct scull_pipe *dev = filp->private_data;
+    
+    if (down_interruptible(&dev->sem))
+        return -ERESTARTSYS;
+ while (dev->rp = = dev->wp) { /* nothing to read */
+    up(&dev->sem); /* release the lock */
+    
+    if (filp->f_flags & O_NONBLOCK)
+        return -EAGAIN;
+    PDEBUG("\"%s\" reading: going to sleep\n", current->comm);
+    
+    if (wait_event_interruptible(dev->inq, (dev->rp != dev->wp)))
+        return -ERESTARTSYS; /* signal: tell the fs layer to handle it */
+        
+    /* otherwise loop, but first reacquire the lock */
+    if (down_interruptible(&dev->sem))
+        return -ERESTARTSYS;
+    }
+    
+  /* ok, data is there, return something */
+  if (dev->wp > dev->rp)
+      count = min(count, (size_t)(dev->wp - dev->rp));
+  else /* the write pointer has wrapped, return data up to dev->end */
+      count = min(count, (size_t)(dev->end - dev->rp));
+  if (copy_to_user(buf, dev->rp, count)) {
+      up (&dev->sem);
+      return -EFAULT;
+  }
+  dev->rp += count;
+  if (dev->rp = = dev->end)
+      dev->rp = dev->buffer; /* wrapped */
+  up (&dev->sem);
+  /* finally, awake any writers and return */
+  wake_up_interruptible(&dev->outq);
+  PDEBUG("\"%s\" did read %li bytes\n",current->comm, (long)count);
+  return count;
+}
+Some PDEBUG messages are left in there - you can enable/disable them at compile time for the driver with a flag.
+
+Let's look at how scull_p_read handles waiting for the data:
+
+The while loop tests the buffer with the device semaphore held
+If the data is there, there is no need to sleep and data can be transferred to the user
+If the buffer is empty, we must sleep
+Before sleeping, we NEED to drop the device semaphore
+When the semaphore is dropped, we make a quick check to see if the user has requested non-blocking I/O and return if true. If not, time to call wait_event_interruptible.
+Now we are asleep, and need some way to wake up. One way is if the process receives a signal - the if statement contains a wait_event_interruptible call to check for this case.
+When awoken, you must aquire the device semaphore again (somebody else could have read the data too after waiting like you did!) and check that there is data to be read.
+Thus, when we exit the while loop, we know the semaphore is held and there is data to be read
+```
+
+
+

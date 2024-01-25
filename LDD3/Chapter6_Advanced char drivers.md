@@ -59,8 +59,90 @@ _IOWR(type,nr,datatype) for bidirectional transfers
 
 ```
 For example, 'k' is the magic number.
+#define CHDRIVER_MAGICNUMBER 'k'
 #define CHDRIVER_IOCGETDATA _IOR(k,1,int) //READ int data type
 #define CHDRIVER_IOCSETDATA _IOW(k,2,int) //Write int data
+#define CHDRIVER_MAX_NR 3
 
 Here, k is a magaic number. Used throughout. 1, 2 are numbers in sequential order. int is the data type.
+
+
+# IOCTL argument
+
+If the cmd argument contains pointer, we need to make sure whether the address of the user space is ok before proceeding further.
+
+```
+int access_ok(int type, const void *addr, unsigned long size);
+```
+
+If it is a read operation, then we need to check "VERIFY_WRITE".
+If it is a write operation, then we need to check "VERIFY_READ".
+
+```
+int ret = 0;
+
+//check magic number
+if(_IOC_TYPE(cmd) != CHDRIVER_MAGICNUMBER)
+	return -ENOTTY; //invalid cmd
+if(_IOC_NR(cmd) != CHDRIVER_MAX_NR)
+	return -ENOTTY;
+
+if(_IOC_DIR(cmd) & _IOC_READ)
+	ret = access_ok(VERIFY_WRITE, (void __user*)arg,_IOC_SIZE(cmd));
+else if(_IOC_DIR(cmd) & _IOC_WRITE)
+	ret = access_ok(VERIFY_READ, (void __user*)arg,_IOC_SIZE(cmd));
+if(ret) return -EFAULT;
+```
+
+After permforming access check, device can safety transfer the data. Apart from copy_from_user, copy_to_user , there are other optimised options are there.
+
+```
+put_user(datum, ptr)
+__put_user(datum, ptr)
+  These macros write the datum to user space; they are relatively fast and should be called instead of copy_to_user whenever single values are being transferred. The macros have been written to allow the passing of any type of pointer to put_user, as long as it is a user-space address. The size of the data transfer depends on the type of the ptr argument and is determined at compile time using the sizeof and typeof compiler builtins. As a result, if ptr is a char pointer, one byte is transferred, and so on for two, four, and possibly eight bytes. 
+  put_user checks to ensure that the process is able to write to the given memory address. It returns 0 on success, and -EFAULT on error. __put_user performs less checking (it does not call access_ok), but can still fail if the memory pointed to is not writable by the user. Thus, __put_user should only be used if the memory region has already been verified with access_ok. 
+  As a general rule, you call __put_user to save a few cycles when you are implementing a read method, or when you copy several items and, thus, call access_ok just once before the first data transfer, as shown above for ioctl.
+
+get_user(local, ptr)
+__get_user(local, ptr)
+  These macros are used to retrieve a single datum from user space. They behave like put_user and __put_user, but transfer data in the opposite direction. The value retrieved is stored in the local variable local; the return value indicates whether the operation succeeded. Again, __get_user should only be used if the address has already been verified with access_ok.
+
+```
+
+# Capablities and restriction operations
+
+Access to a device is controlled by the permissions on the device files, and the driver itself is normally not involved with this permissions checking. There are situations where any user has read/write permission on the device, but some control operations should still be denied. Thus, the driver needs to perform some additional checks to make sure the user is capable of performing the requested operation.
+
+Unix systems traditionally used two users - the normal user and the superuser. The normal user is highly restricted, and the superuser can do anything. Sometimes we need a solution inbetween the two. This is why the kernel provides a more flexible system call capabilities. This system breaks down privileged operations into separate subgroups. The kernel exports two system calls capget and capset to allow permissions to be managed from user space. The full set of capabilities is in <linux/capability.h>. The subset of capabilities were are interested in:
+```
+CAP_DAC_OVERRIDE
+  The ability to override access restrictions (data access control, or DAC) on files and directories.
+  
+CAP_NET_ADMIN
+  The ability to perform network administration tasks, including those that affect network interfaces.
+  
+CAP_SYS_MODULE
+  The ability to load or remove kernel modules.
+  
+CAP_SYS_RAWIO
+  The ability to perform “raw” I/O operations. Examples include accessing device ports or communicating directly with USB devices.
+  
+CAP_SYS_ADMIN
+  A catch-all capability that provides access to many system administration operations.
+  
+CAP_SYS_TTY_CONFIG
+The ability to perform tty configuration tasks.
+
+```
+Before performing a privileged operation, a device driver should check to make sure the calling process has the appropriate capability. Capability checks are performed with the capable function found in <linux/sched.h>:
+```
+int capable(int capability);
+```
+```
+if (! capable (CAP_SYS_ADMIN))
+  return -EPERM;
+```
+
+
+
 

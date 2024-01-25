@@ -76,3 +76,12 @@ btrfs-control  ram2           tty19          tty4           tty60
 bus            ram3           tty2           tty40          tty61
 chdriver-0     ram4           tty20          tty41          tty62
 ```
+
+# unload kernel module
+
+```
+/ # rmmod char-driver
+[  797.148580] char_driver_exit_function completed 
+/ # 
+
+```

@@ -1,0 +1,25 @@
+https://linux-kernel-labs.github.io/refs/heads/master/lectures/intro.html
+Kernel responsibilities:
+1. Process management:
+	->In charge of creating and destroying process.
+	-> communication between input and output world
+	-> communication between different processes like pipe, ipc, signals
+	-> in addition, scheduler, which controls how processes share CPU	
+2. Memory management:
+    -> Creates virtual address space on top of limited resources (malloc, free)
+3.File system:
+	-> FAT, ext3
+4. Device control 
+	-> device control operations are performed by device code that is specific to the device being addressed. This code called device driver.		
+
+User space -application runs in user space
+Kernel - has full control of CPU
+
+local interrupts of cpu can be enabled or disabled in kernel mode, if this operation executes in user mode, kernel will handle it.
+
+The kernel space is the memory area that is reserved to the kernel while user space is the memory area reserved to a particular user process.
+The kernel space is accessed protected so that user applications cannot access it directly, while user space can be directly accessed from code running in kernel mode.
+System kernel is responsible for access and share the Hardware in a secure way and fine way with multiple application. 
+Kernel code -> Core kernel -> common one. It has subsystems like process management, memory management, networking, file system.
+
+

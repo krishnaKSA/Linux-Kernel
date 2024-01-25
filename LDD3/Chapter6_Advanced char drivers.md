@@ -147,3 +147,25 @@ if (! capable (CAP_SYS_ADMIN))
   return -EPERM;
 ```
 
+# Steps to create IOCTL
+
+	In driver side, 
+ 		1. Create IOCTL commands
+   		2. write IOCTL function
+     	In Userspace application,
+      		1. Create IOCTL command
+	        2. Use IOCTL system call
+
+```
+Q. What is IOCTL Used for in Linux?
+IOCTL is used to perform specific operations on device drivers that are not covered by standard system calls. It allows user-space applications to send control commands to the kernel-space driver and retrieve information or modify device behavior.
+
+Q. How Does IOCTL Work?
+IOCTL works by passing commands and optional arguments from the user-space application to the device driver in the kernel. The driver then interprets the command and performs the requested operation, such as reading or writing device registers, adjusting device settings, or performing other device-specific tasks.
+
+Q. Can IOCTL Pass Multiple Arguments Between User-space and kernel-space?
+Yes, IOCTL can pass multiple arguments between user-space and kernel-space. If you need to pass multiple arguments, you can create a structure that contains all the necessary variables and pass the address of the structure as an argument in the IOCTL command.
+
+Q. Are there Alternative Methods to IOCTL for Communication Between user-space and kernel-space?
+Yes, there are alternative methods to IOCTL for communication between user-space and kernel-space in Linux. Some of these methods include Procfs, Sysfs, Configfs, Debugfs, Sysctl, UDP Sockets, and Netlink Sockets.
+```

@@ -64,7 +64,7 @@ static void init_all_devices(void)
     chdriver_data.number_of_devices = MAX_DEVICES;
 
     chdriver_data.devices[0].serial_number ="12";
-    chdriver_data.devices[0].permission =O_RDONLY;
+    chdriver_data.devices[0].permission =O_RDWR;
     chdriver_data.devices[0].buffer = dev1_buffer;
     chdriver_data.devices[0].size = DEVICE1_BUFFERSIZE;
 
@@ -136,6 +136,7 @@ static void __exit char_driver_exit_function(void)
     }
 
     unregister_chrdev_region(chdriver_data.device_number, MAX_DEVICES);
+    pr_info("chdriver:module removed successfully\n");
 
 }
 

@@ -155,4 +155,114 @@ Thus, when we exit the while loop, we know the semaphore is held and there is da
 ```
 
 
+# POLL
+
+Application that uses non-blocking IO, uses poll, select or epoll method. Each of these method helps application to read or write data without blocking.
+
+```
+unsigned int (*poll) (struct file *filp, poll_table *wait);
+```
+
+The device method must do two things:
+
+Call poll_wait on one (or more) wait queues that could indicate a change in the poll status. If no file descriptors are currently available for I/O, the kernel causes the process to wait for the wait queues for all file descriptors passed to the system call.
+Return a bit mask describing the operations that could be immediately performed without blocking.
+These operations are simple and similar among many drivers. The poll_table structure is used within the kernel to implement the poll, select, and epoll calls (see <linux/poll.h>). The driver then adds a wait queue to the poll_table structure by calling poll_wait:
+```
+void poll_wait (struct file *, wait_queue_head_t *, poll_table *);
+```
+The poll method also returns a bit mask describing which operations could be implemented immediately:
+```
+POLLIN
+    This bit must be set if the device can be read without blocking.
+    
+POLLRDNORM
+    This bit must be set if “normal” data is available for reading. A readable 
+    device returns (POLLIN | POLLRDNORM).
+    
+POLLRDBAND
+    This bit indicates that out-of-band data is available for reading from the 
+    device. It is currently used only in one place in the Linux kernel (the DECnet 
+    code) and is not generally applicable to device drivers.
+    
+POLLPRI
+    High-priority data (out-of-band) can be read without blocking. This bit causes
+    select to report that an exception condition occurred on the file, because 
+    select reports out-of-band data as an exception condition.
+    
+POLLHUP
+    When a process reading this device sees end-of-file, the driver must set POLLHUP
+    (hang-up). A process calling select is told that the device is readable, as 
+    dictated by the select functionality.
+  
+POLLERR
+    An error condition has occurred on the device. When poll is invoked, the device
+    is reported as both readable and writable, since both read and write return an
+    error code without blocking.
+    
+POLLOUT
+    This bit is set in the return value if the device can be written to without 
+    blocking.
+    
+POLLWRNORM
+    This bit has the same meaning as POLLOUT, and sometimes it actually is the same
+    number. A writable device returns (POLLOUT | POLLWRNORM).
+    
+POLLWRBAND
+    Like POLLRDBAND, this bit means that data with nonzero priority can be written 
+    to the device. Only the datagram implementation of poll uses this bit, since a 
+    datagram can transmit out-of-band data.
+```
+```
+static unsigned int scull_p_poll(struct file *filp, poll_table *wait)
+{
+     struct scull_pipe *dev = filp->private_data;
+     unsigned int mask = 0;
+     /*
+     * The buffer is circular; it is considered full
+     * if "wp" is right behind "rp" and empty if the
+     * two are equal.
+     */
+     down(&dev->sem);
+     poll_wait(filp, &dev->inq, wait);
+     poll_wait(filp, &dev->outq, wait);
+     if (dev->rp != dev->wp)
+        mask |= POLLIN | POLLRDNORM; /* readable */
+     if (spacefree(dev))
+        mask |= POLLOUT | POLLWRNORM; /* writable */
+     up(&dev->sem);
+     return mask;
+}
+```
+**Interaction with Read and Write**
+
+The purpose of poll and select calls is to determine in advance if an I/O operation will block. They compliment read and write well, and doing all three at once it descibed below:
+
+**Reading data from the device:**
++ If there is data in the input buffer, the read call should return immediately with no big delay.
+- You can always return less data than expected. In this case, return POLLIN|POLLRDNORM
++ If there is no data in the input buffer, by default read must block until at least one byte is there
+- If O_NONBLOCK is set, read returns immediately with a return value of -EAGAIN.
++ If we are at end-of-file, read should return immediately with a value of 0. poll should report POLLHUP in this case.
+
+**Writing to the device**
+- If there is space in the output buffer, write should return without delay
++ In this case, poll reports the device is writable by returning POLLOUT|POLLWRNORM
+- If the output buffer is full, by default write blocks until some space is freed
++ If O_NONBLOCK is set, write returns immediately with a return value of -EAGAIN
+- poll should then report the file is not writeable.
++ If the device cannot accept more data, write returns -ENOSPC
+- Never make a write call wait for data transmission before returning, even if O_NONBLOCK is clear
+
+**Flushing pending output**
+The write method alone doesn’t account for all data output needs
+The fsync function/system call fills this gap
+```
+The protoype for fsync is:
+int (*fsync) (struct file *file, struct dentry *dentry, int datasync);
+Waits until device has been completely flushed to return
+Not time critical
+Char driver commonly has NULL pointer in its fops
+Block devices always implement the block-sync method
+```
 

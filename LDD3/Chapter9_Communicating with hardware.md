@@ -134,7 +134,8 @@ ARM
     implemented in C. Ports are of type unsigned int.
 
 **An Overview of the Parallel Port**
-https://en.wikipedia.org/wiki/Parallel_port#/media/File:Parallel_computer_printer_port.jpg
+![800px-Parallel_computer_printer_port](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/d68c218e-6422-47e8-b18a-1eb985304688)
+
 
 The parallel interface, in its minimal configuration, is made up of three 8-bit ports. The PC standard starts the I/O ports for the first parallel interface at 0x378 and for the second at 0x278.
 
@@ -143,3 +144,92 @@ The parallel interface, in its minimal configuration, is made up of three 8-bit 
 The third port is an output-only control register which mainly controls whether interrupts are enabled or not
 All ports are on the 0-5V TTL logic level
 
+**Using I/O memory:**
+
+The main mechanism is used to communicate with device is memory-mapped register and device memory.Both are called I/O memory.
+I/O memory is a region of RAM-like locations that the device makes available to the processor over the bus. It can be used for things like holding video data, holding ethernet packets, and implementing registers that behave like I/O ports.
+
+I/O memory may or may not be accessed through page tables. When access does pass through page tables, the kernel must first arrange for the physical address to be visible from your driver. This usually means that you must call ioremap before doing any I/O operations. If no page tables are needed, I/O memory locations look like I/O ports. You can then just read and write to them using proper wrapper functions.
+
+Whether or not ioremap is required to access I/O memory, direct use of pointers to I/O memory is discouraged. The kernel provides wrapper functions used to access I/O memory that is safe on all platforms and optimized away whenever straight pointer dereferencing can perform the operation.
+
+**I/O Memory Allocation and Mapping:**
+
+```
+I/O memory regions need to be allocated prior to use. The interface for allocation of memory regions is described in <linux/ioport.h> and has prototype:
+
+struct resource *request_mem_region(unsigned long start, unsigned long len,
+                                    char *name);
+Allocates a memory region of len bytes
+Allocates starting at the bit start
+On success, a non-NULL pointer is returned.
+On failure, the return value is NULL.
+All I/O memory allocations are listed in /proc/iomem.
+
+Memory regions should be free when no longer needed with:
+
+void release_mem_region(unsigned long start, unsigned long len);
+There is also an old, now outdated method to check I/O memory region availability with:
+
+int check_mem_region(unsigned long start, unsigned long len);
+It still shows up sometimes, so it is included here for completeness.
+
+Next, virtual addresses must be assigned to I/O memory regions with ioremap. Once equipped with ioremap and iounmap, a device driver can access any I/O memory address whether or not it is directly mapped to virtual address space. Here are the prototypes for ioremp:
+
+#include <asm/io.h>
+
+void *ioremap(unsigned long phys_addr, unsigned long size);
+void *ioremap_nocache(unsigned long phys_addr, unsigned long size);
+void iounmap(void * addr);
+The nocache version is often just identical to ioremap. It was meant to be useful if some control registers were in such an area that write combining or read caching was not desirable. This is rare and often not used.
+```
+
+**Accessing I/O Memory:**
+```
+On some platforms, you may get away with using the return value from ioremap as a pointer. This is not good though. Instead, a more portable version with functions has been designed as follows:
+
+To read from I/O memory, use one of the following:
+
+unsigned int ioread8(void *addr);
+unsigned int ioread16(void *addr);
+unsigned int ioread32(void *addr);
+Where addr is an address obtained from ioremap. The return value is what was read from the given I/O memory.
+
+To write to I/O memory, use one of the following:
+
+void iowrite8(u8 value, void *addr);
+void iowrite16(u16 value, void *addr);
+void iowrite32(u32 value, void *addr);
+For reading or writing multiple values, use the following:
+
+void ioread8_rep(void *addr, void *buf, unsigned long count);
+void ioread16_rep(void *addr, void *buf, unsigned long count);
+void ioread32_rep(void *addr, void *buf, unsigned long count);
+void iowrite8_rep(void *addr, const void *buf, unsigned long count);
+void iowrite16_rep(void *addr, const void *buf, unsigned long count);
+void iowrite32_rep(void *addr, const void *buf, unsigned long count);
+These functions read or write count values from the given buf to the given addr
+count is expressed in the size of the data being written
+Ex: ioread32_rep reads count 32-bit values starting at buf
+If you need to operate on a block of memory instead, use one of the following:
+
+void memset_io(void *addr, u8 value, unsigned int count);
+void memcpy_fromio(void *dest, void *source, unsigned int count);
+void memcpy_toio(void *dest, void *source, unsigned int count);
+These functions behave like their C library analogs
+There are some older read/write functions in legacy kernel code that you should watch out for. Some 64-bit platforms also offer readq and writeq, for quad-word (8-byte) memory operations on the PCI bus.
+```
+
+**Ports as I/O Memory**
+```
+Some hardware has an interesting feature: some versions use I/O ports, while others use I/O memory. This seems really confusing to me as to why you would do both. The registers exported to the processor are the same in both cases, but the access method is different (this just sounds like a bad time). To minimize the difference between these two access methods, the kernel provides a function called ioport_map with prototype:
+
+void *ioport_map(unsigned long port, unsigned int count);
+It remaps count I/O ports and makes them appear to be I/O memory
+From there on the driver can use ioread8 and related functions on the returned addresses
+This makes it forget that it is using I/O ports at all
+The mapping should be undone when no longer needed with:
+
+void ioport_unmap(void *addr);
+Note: I/O ports must still be allocated with request_region before they can be remapped in this way.
+```

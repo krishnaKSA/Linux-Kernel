@@ -266,3 +266,97 @@ Char driver commonly has NULL pointer in its fops
 Block devices always implement the block-sync method
 ```
 
+# Access Control on a Device File
+Access control is implemented in the open and release operations.
+
+**Single-Open Devices**:
+The brute force method: permit a device to be opened by only one process at a time. This is called single openness. It is best to avoid this way because of user ingenuity. It may get in the way of what users want to do. This is how scullsingle implents single openness:
+
+```
+static atomic_t scull_s_available = ATOMIC_INIT(1);
+static int scull_s_open(struct inode *inode, struct file *filp)
+{
+     struct scull_dev *dev = &scull_s_device; /* device information */
+      if (! atomic_dec_and_test (&scull_s_available)) {
+          atomic_inc(&scull_s_available);
+          return -EBUSY; /* already open */
+      }
+     /* then, everything else is copied from the bare scull device */
+     if ( (filp->f_flags & O_ACCMODE) = = O_WRONLY)
+        scull_trim(dev);
+     filp->private_data = dev;
+     return 0; /* success */
+}
+The atomic variable scull_s_available decrements with the open call and refuses acess if somebody else already has the device open.
+
+And the release call marks the device as no longer busy:
+
+static int scull_s_release(struct inode *inode, struct file *filp)
+{
+ atomic_inc(&scull_s_available); /* release the device */
+ return 0;
+}
+```
+
+**Restricting Access to a Single User at a Time**
+
+This is implemented in the open call of sculluid as:
+```
+ spin_lock(&scull_u_lock);
+ if (scull_u_count &&
+       (scull_u_owner != current->uid) && /* allow user */
+       (scull_u_owner != current->euid) && /* allow whoever did su */
+       !capable(CAP_DAC_OVERRIDE)) { /* still allow root */
+    spin_unlock(&scull_u_lock);
+    return -EBUSY; /* -EPERM would confuse the user */
+ }
+ 
+ if (scull_u_count = = 0)
+      scull_u_owner = current->uid; /* grab it */
+      
+ scull_u_count++;
+ spin_unlock(&scull_u_lock);
+```
+This allows the many processes to work on the device as long as they are from the same owner. A spinlock is implemented to control access to scull_u_owner and scull_u_count. The corresponding release method then looks like:
+
+```
+static int scull_u_release(struct inode *inode, struct file *filp)
+{
+   spin_lock(&scull_u_lock);
+   scull_u_count--; /* nothing else */
+   spin_unlock(&scull_u_lock);
+   return 0;
+}
+```
+**Blocking open as an Alternative to EBUSY**
+
+Sometimes you want to wait instead of returning an error when a device is busy. This is done by implementing blocking open. The scullwuid driver waits on open instead of returning an error. The only difference is the following:
+```
+spin_lock(&scull_w_lock);
+while (! scull_w_available( )) {
+   spin_unlock(&scull_w_lock);
+   if (filp->f_flags & O_NONBLOCK) return -EAGAIN;
+   if (wait_event_interruptible (scull_w_wait, scull_w_available( )))
+      return -ERESTARTSYS; /* tell the fs layer to handle it */
+   spin_lock(&scull_w_lock);
+}
+if (scull_w_count = = 0)
+    scull_w_owner = current->uid; /* grab it */
+scull_w_count++;
+spin_unlock(&scull_w_lock);
+```
+It is based on the wait queue. If the device is busy, the process is placed on a wait queue until the owning process closes the device. The release method then needs to awaken any pending process with:
+```
+static int scull_w_release(struct inode *inode, struct file *filp)
+{
+   int temp;
+   
+   spin_lock(&scull_w_lock);
+   scull_w_count--;
+   temp = scull_w_count;
+   spin_unlock(&scull_w_lock);
+   if (temp = = 0)
+        wake_up_interruptible_sync(&scull_w_wait); /* awake other uid's */
+   return 0;
+}
+```

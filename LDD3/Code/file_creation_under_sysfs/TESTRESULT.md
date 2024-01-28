@@ -1,7 +1,7 @@
 Tested in qemu. 
 
 1. Load kernel module "sysfs_file.ko"
-2. read and write data into /sys/kernel/sysfs/buffer
+2. read and write data into /sys/kernel/sysfs_buf/buffer
 
    ```
   /sys/kernel/sysfs_buf # ls -al

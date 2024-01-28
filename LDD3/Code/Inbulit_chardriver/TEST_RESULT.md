@@ -57,8 +57,10 @@ Tested in QEMU. Hardware interrupt simulated in qemu.
 **Read will not happen until the sync flag is set on the driver. Sync flag is set once interrupt received**
 
 **Simulate interrupt in qemu**
-+ To enable interrupt at 35th bit > devmem 0x8000104 w 0x0000002E
-+ To trigger interrupt at 35th bit > devmem 0x8000204 w 0x00000008
++ To enable interrupt at 35th bit
+  > devmem 0x8000104 w 0x0000002E
++ To trigger interrupt at 35th bit
+  > devmem 0x8000204 w 0x00000008
 
 After receiving interrupts, read and write requested are processed . 
 ```

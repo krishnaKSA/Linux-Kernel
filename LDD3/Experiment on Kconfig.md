@@ -18,7 +18,7 @@ When we do menuconfig, linux configuration will come in the forms of menu, and f
    yocto/poky/build-qemu-arm64/workspace/sources/linux-yocto
    ```
 5. Created my kernel module source file inside /drivers/char/ folder.
-6. Then, modified **Kconfig** file inside /drivers/char/ folder to include my kernel module.
+6. Then, modified **Kconfig** file inside **/drivers/char/** folder to include my kernel module.
    I have given config name as "SAMPLE_CHARDRIVER" and default n means its disabled by default.
      ```
       config SAMPLE_CHARDRIVER

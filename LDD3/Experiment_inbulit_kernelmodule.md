@@ -17,6 +17,7 @@ Follwed steps as I have mentioned in the Experiment on device tree.md.
 
 # STEP 3: Build kernel module
 + Created kernel module which is compatible with the device node added in the qts file.
++ Registered as platform driver, after registration probe function will be invoked.
 + In the probe function, registered for the interrupt. Read interrupt number from dts file.
 + To communicate from user app, and transfters data bewtween this driver and user app, created device files
   which will be popluated in /dev/ fs.

@@ -51,7 +51,6 @@ int main()
         printf("userapp: read successful = %d\n", err);
     }
 
-     fd_chdr1= open("/dev/samchdriver-2", O_RDONLY);
     close(fd_chdr1);
     return 0;
 }

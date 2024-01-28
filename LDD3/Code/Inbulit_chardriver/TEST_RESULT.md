@@ -1,4 +1,4 @@
-Tested in QEMU. 
+Tested in QEMU. Hardware interrupt simulated in qemu.
 
 + run this command in yocto build system, > runqemu qemuarm64 nographic slirp qemuparams="-dtb qemu2.dtb"
 + samplechardriver kernel module is inbuilt.
@@ -54,8 +54,26 @@ Tested in QEMU.
 [ 1016.191120] Sample_chdriver_read called 
 [ 1016.191386] chdriver_read: Sync bit is not set. wait for it 
 ```
-**Read will not happen until the sync flag is set on the de
+**Read will not happen until the sync flag is set on the driver. Sync flag is set once interrupt received**
 
+**Simulate interrupt in qemu**
+To enable interrupt at 35th bit > devmem 0x8000104 w 0x0000002E
+To trigger interrupt at 35th bit > devmem 0x8000204 w 0x00000008
+
+After receiving interrupts, read and write requested are processed . 
+```
+/ # devmem 0x8000204 w 0x00000008
+[ 1387.589321] sample_chardev: interrupt_handler called for int no 49
+/ # userapp: read successful count =20 
+userapp: write successful count = 30
+[ 1387.598919] Sample_chdriver_read called 
+userapp: read successful = 23
+[ 1387.604857] Sample_chdriver_release called 
+```
+
+**Interrupt received by device chardrivernode1**
+
+![image](https://github.com/krishnaKSA/Linux-Kernel/assets/60934956/7b7bf91c-24f3-45d0-87ea-a08216b030c1)
 
 
 
